@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_GUIDGenerator", "_GUIDGenerator\_GUIDGenerator.csproj", "{E473F1E2-E646-4A37-89CB-C015F4B83760}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{E473F1E2-E646-4A37-89CB-C015F4B83760}.Debug.ActiveCfg = Debug|.NET
+		{E473F1E2-E646-4A37-89CB-C015F4B83760}.Debug.Build.0 = Debug|.NET
+		{E473F1E2-E646-4A37-89CB-C015F4B83760}.Release.ActiveCfg = Release|.NET
+		{E473F1E2-E646-4A37-89CB-C015F4B83760}.Release.Build.0 = Release|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
