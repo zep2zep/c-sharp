@@ -3,7 +3,9 @@ using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Diagnostics;
 using System.Reflection;
+using System.Threading;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 
@@ -28,12 +30,21 @@ namespace _GUIDGenerator
 		private System.ComponentModel.IContainer components;
 		private System.Windows.Forms.TextBox txtGUID;
 		private System.Windows.Forms.TextBox txtLens;
-		string[] sName = {"横杠","无","小括号","大括号"};
-		string[] sFormat = {"D","N","P","B"};
-		int iMax = 9999;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.NumericUpDown numericUpDown1;
-		string sCF;
+		string[] sName = {"横杠","无","小括号","大括号"};
+		string[] sFormat = {"D","N","P","B"};
+		string sCF;	//格式
+		private System.Windows.Forms.ProgressBar progressBar1;	
+		int iMax = 9999;	//最大数
+
+		//ShowWindowAsync
+		[DllImport("User32.dll")] 
+		private static extern bool ShowWindowAsync(System.IntPtr hWnd, int cmdShow); 
+
+		//SetForegroundWindow
+		[DllImport("User32.dll")]
+		private static extern bool SetForegroundWindow(IntPtr hWnd);
 
 		public frm_GUIDGenerator()
 		{
@@ -75,6 +86,7 @@ namespace _GUIDGenerator
 			this.btnCopy = new System.Windows.Forms.Button();
 			this.errorProvider1 = new System.Windows.Forms.ErrorProvider();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.progressBar1 = new System.Windows.Forms.ProgressBar();
 			this.btnSingleGen = new System.Windows.Forms.Button();
 			this.checkBox1 = new System.Windows.Forms.CheckBox();
 			this.label1 = new System.Windows.Forms.Label();
@@ -115,12 +127,15 @@ namespace _GUIDGenerator
 			this.txtGUID.Text = "";
 			this.txtGUID.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtGUID_KeyDown);
 			this.txtGUID.TextChanged += new System.EventHandler(this.txtGUID_TextChanged);
+			this.txtGUID.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.txtGUID_MouseWheel);
+			this.txtGUID.MouseUp += new System.Windows.Forms.MouseEventHandler(this.txtGUID_MouseUp);
 			// 
 			// txtAmount
 			// 
+			this.txtAmount.AcceptsReturn = true;
 			this.txtAmount.BackColor = System.Drawing.Color.Cornsilk;
 			this.txtAmount.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.txtAmount.Location = new System.Drawing.Point(304, 137);
+			this.txtAmount.Location = new System.Drawing.Point(296, 137);
 			this.txtAmount.MaxLength = 4;
 			this.txtAmount.Name = "txtAmount";
 			this.txtAmount.Size = new System.Drawing.Size(48, 21);
@@ -148,6 +163,15 @@ namespace _GUIDGenerator
 			// toolTip1
 			// 
 			this.toolTip1.ShowAlways = true;
+			// 
+			// progressBar1
+			// 
+			this.progressBar1.Location = new System.Drawing.Point(40, 312);
+			this.progressBar1.Name = "progressBar1";
+			this.progressBar1.Size = new System.Drawing.Size(250, 18);
+			this.progressBar1.Step = 1;
+			this.progressBar1.TabIndex = 13;
+			this.toolTip1.SetToolTip(this.progressBar1, "正在生成");
 			// 
 			// btnSingleGen
 			// 
@@ -252,6 +276,7 @@ namespace _GUIDGenerator
 			// 
 			// frm_GUIDGenerator
 			// 
+			this.AcceptButton = this.btnMultiGen;
 			this.AutoScale = false;
 			this.AutoScaleBaseSize = new System.Drawing.Size(6, 14);
 			this.ClientSize = new System.Drawing.Size(358, 326);
@@ -268,6 +293,7 @@ namespace _GUIDGenerator
 			this.Controls.Add(this.btnCopy);
 			this.Controls.Add(this.btnMultiGen);
 			this.Controls.Add(this.txtGUID);
+			this.Controls.Add(this.progressBar1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
 			this.KeyPreview = true;
 			this.MaximizeBox = false;
@@ -287,7 +313,39 @@ namespace _GUIDGenerator
 		[STAThread]
 		static void Main() 
 		{
-			Application.Run(new frm_GUIDGenerator());
+			bool appIsRunning;
+			Mutex mutex = new System.Threading.Mutex(true, @"Local\GUIDGenerator", out appIsRunning);
+			if(appIsRunning)
+			{
+				Application.EnableVisualStyles();
+				Application.Run(new frm_GUIDGenerator());
+				mutex.ReleaseMutex();
+			}
+			else
+			{
+				Process cp = Process.GetCurrentProcess();
+				Process[] p = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
+				foreach (Process ps in p)
+				{
+					try
+					{
+						if(ps.Id != cp.Id)
+						{
+							IntPtr hWnd = ps.MainWindowHandle;	//取句柄
+							ShowWindowAsync(hWnd, 1);	//调用api函数，正常显示窗口 
+							SetForegroundWindow(hWnd);	//将窗口放置最前端。 
+						}
+					}
+					catch(Exception eX)
+					{
+						MessageBox.Show(eX.Message);
+					}
+					finally
+					{
+						Application.Exit();
+					}
+				}
+			}	
 		}
 
 		/// <summary>
@@ -318,7 +376,6 @@ namespace _GUIDGenerator
 				this.comboBox1.DisplayMember = "Key";
 				this.comboBox1.ValueMember = "Value";
 				this.comboBox1.SelectedIndex = 0;
-//				btnSingleGen_Click(sender,e);
 				txtGUID.Text = System.Guid.NewGuid().ToString();
 			}
 			catch(Exception eX)
@@ -346,12 +403,51 @@ namespace _GUIDGenerator
 		/// <param name="e"></param>
 		private void checkBox1_CheckedChanged(object sender, System.EventArgs e)
 		{
-			setLowerOrUpper(txtGUID.Text);
-			setSyncLines();
+//			setLowerOrUpper(txtGUID.Text);
+			ThreadStart start = new ThreadStart(DoCheck);
+			Thread thread = new Thread(start);
+			thread.Start(); 
 		}
 
 		/// <summary>
-		/// 多条
+		/// 线程 单选 - 大/小写
+		/// </summary>
+		private void DoCheck()
+		{
+			txtGUID.Enabled = false;
+			string sGUID = "";
+			int iNbr = txtGUID.Lines.Length;
+		
+			progressBar1.Value = 0;
+			progressBar1.Maximum = iNbr;
+			//耗时操作
+			while(iNbr>0)
+			{
+				if(checkBox1.Checked==true)
+				{
+					if(sGUID=="")
+						sGUID += txtGUID.Lines[progressBar1.Maximum-iNbr].ToUpper();
+					else
+						sGUID += "\r\n"+txtGUID.Lines[progressBar1.Maximum-iNbr].ToUpper();
+					iNbr--; 
+				}
+				else
+				{
+					if(sGUID=="")
+						sGUID += txtGUID.Lines[progressBar1.Maximum-iNbr].ToLower();
+					else
+						sGUID += "\r\n"+txtGUID.Lines[progressBar1.Maximum-iNbr].ToLower();
+					iNbr--; 
+				}
+				progressBar1.Value = progressBar1.Maximum-iNbr;
+			}
+			SyncLines(false);
+			txtGUID.Text = sGUID;
+			txtGUID.Enabled = true;
+		}
+
+		/// <summary>
+		/// 生成多条
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
@@ -362,11 +458,30 @@ namespace _GUIDGenerator
 				iNbr = Convert.ToInt32(txtAmount.Text.Trim());
 			if(iNbr<1 || iNbr>iMax)
 			{
+				errorProvider1.Dispose();
 				errorProvider1.SetError(txtAmount, "数量错误! 1-"+iMax);
 				return;
 			}
+			
+			ThreadStart start = new ThreadStart(DoGen);
+			Thread thread = new Thread(start);
+			thread.Start(); 
+				
+//			setLowerOrUpper(sGUID);
+		}
+		
+		/// <summary>
+		/// 线程生成多条
+		/// </summary>
+		private void DoGen()
+		{
+			txtGUID.Enabled = false;
 			string sGUID = "";
-			errorProvider1.Dispose();
+			int iNbr = Convert.ToInt32(txtAmount.Text.Trim());
+			
+			progressBar1.Value = 0;
+			progressBar1.Maximum = iNbr;
+			//耗时操作
 			while(iNbr>0)
 			{
 				if(sGUID=="")
@@ -374,6 +489,7 @@ namespace _GUIDGenerator
 				else
 					sGUID += "\r\n"+System.Guid.NewGuid().ToString(sCF);
 				iNbr--; 
+				progressBar1.Value = progressBar1.Maximum-iNbr;
 			}
 			setLowerOrUpper(sGUID);
 		}
@@ -385,9 +501,22 @@ namespace _GUIDGenerator
 		/// <param name="e"></param>
 		private void comboBox1_SelectedIndexChanged(object sender, System.EventArgs e)
 		{
+			ThreadStart start = new ThreadStart(DoChang);
+			Thread thread = new Thread(start);
+			thread.Start(); 
+		}
+
+		/// <summary>
+		/// 线程改变格式
+		/// </summary>
+		private void DoChang()
+		{
+			txtGUID.Enabled = false;
 			sCF = ((ListItem)comboBox1.SelectedItem).Value.ToString();
 			if(txtGUID.Lines.Length<1)
 				return;
+			progressBar1.Value = 0;
+			progressBar1.Maximum = txtGUID.Lines.Length;
 			string sGUID = "";
 			foreach (string tx in txtGUID.Lines)
 			{
@@ -396,6 +525,8 @@ namespace _GUIDGenerator
 					sGUID += g.ToString(sCF);
 				else
 					sGUID += "\r\n"+g.ToString(sCF);
+
+				progressBar1.Value = progressBar1.Value+1;
 			}
 			setLowerOrUpper(sGUID);
 		}
@@ -427,11 +558,33 @@ namespace _GUIDGenerator
 			{
 				this.txtGUID.SelectionStart = 0; 
 				this.txtGUID.SelectionLength = this.txtGUID.Text.Length;
+//				SyncLines(true);
 			}
 		}
 
 		/// <summary>
-		/// Guid改变
+		/// 滚动
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void txtGUID_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
+		{
+			if (e.Delta > 0)
+			{
+				//上滚滑轮 Min
+				if((numericUpDown1.Value-1)>=numericUpDown1.Minimum)
+					numericUpDown1.Value = numericUpDown1.Value-1;
+			}
+			else
+			{
+				//下滚滑轮 Max
+				if((numericUpDown1.Value+1)<=numericUpDown1.Maximum)
+					numericUpDown1.Value = numericUpDown1.Value+1;
+			}
+		}
+
+		/// <summary>
+		/// 改变Guid
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
@@ -447,26 +600,7 @@ namespace _GUIDGenerator
 		/// <param name="e"></param>
 		private void numericUpDown1_ValueChanged(object sender, System.EventArgs e)
 		{
-			try
-			{
-				int iNbr = 0;
-				if(IsInt(numericUpDown1.Value.ToString()))
-					iNbr = Convert.ToInt32(numericUpDown1.Value.ToString())-1;
-				if(iNbr>=0 && iNbr<txtGUID.Lines.Length)
-				{
-					txtLens.SelectionStart = txtLens.Text.IndexOf(txtLens.Lines[iNbr]);
-					txtLens.SelectionLength = txtLens.Lines[iNbr].Length;
-					txtLens.ScrollToCaret();
-					txtGUID.SelectionStart = txtGUID.Text.IndexOf(txtGUID.Lines[iNbr]);
-					txtGUID.SelectionLength = txtGUID.Lines[iNbr].Length;
-					txtGUID.ScrollToCaret();
-					numericUpDown1.Focus();
-				}
-			}
-			catch(Exception eX)
-			{
-				MessageBox.Show(eX.Message);
-			}
+			SyncLines(true);
 		}
 
 		/// <summary>
@@ -488,6 +622,8 @@ namespace _GUIDGenerator
 				txtGUID.Text = strGuid.ToUpper();
 			else
 				txtGUID.Text = strGuid.ToLower();
+			SyncLines(false);
+			txtGUID.Enabled = true;
 		}
 
 		/// <summary>
@@ -514,11 +650,35 @@ namespace _GUIDGenerator
 		/// <summary>
 		/// 同步滚动条行号
 		/// </summary>
-		void setSyncLines()
+		void SyncLines(bool isFocus)
 		{
-//			txtLens.ScrollBars = txtGUID.ScrollBars;
-//			txtLens.SelectedText = txtGUID.
-//			txtLens.ScrollToCaret();
+			try
+			{
+				int iNbr = 0;
+				if(IsInt(numericUpDown1.Value.ToString()))
+					iNbr = Convert.ToInt32(numericUpDown1.Value.ToString())-1;
+				if(iNbr>=0 && iNbr<txtGUID.Lines.Length)
+				{
+					txtLens.SelectionStart = txtLens.Text.IndexOf(txtLens.Lines[iNbr]);
+					txtLens.SelectionLength = txtLens.Lines[iNbr].Length;
+					txtLens.ScrollToCaret();
+					txtGUID.SelectionStart = txtGUID.Text.IndexOf(txtGUID.Lines[iNbr]);
+					txtGUID.SelectionLength = txtGUID.Lines[iNbr].Length;
+					txtGUID.ScrollToCaret();
+					if(isFocus)
+						numericUpDown1.Focus();
+				}
+			}
+			catch(Exception eX)
+			{
+				MessageBox.Show(eX.Message);
+			}
+		}
+
+		private void txtGUID_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
+		{
+			if (txtGUID.SelectedText.Trim() == "")
+				return;
 		}
 
 		/// <summary>
