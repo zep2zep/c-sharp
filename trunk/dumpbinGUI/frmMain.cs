@@ -91,9 +91,10 @@ namespace dumpbinGUI
             }
             StringBuilder longPath = new StringBuilder(256);
             GetLongPathName(binPath, longPath, 256);
+            //strOutput = strOutput.Replace("\r\nDump of file", "Dump of file");
             strOutput = strOutput.Replace("Microsoft (R) COFF/PE Dumper Version 8.00.50727.762\r\n", "");
             strOutput = strOutput.Replace("Copyright (C) Microsoft Corporation.  All rights reserved.\r\n\r\n", "");
-            txtdumpInfo.Text = strOutput.Replace(binPath,longPath.ToString());
+            txtdumpInfo.Text = strOutput.Replace(binPath,longPath.ToString()).TrimStart('\r','\n');
         }
         
         void TxtdumpInfoKeyDown(object sender, KeyEventArgs e)
@@ -175,7 +176,12 @@ namespace dumpbinGUI
 	        		BuildMode = conf.Configuration;
 	        }
 	        Version ApplicationVersion = new Version(Application.ProductVersion);
-	        this.Text += "  "+BuildMode + " " + ApplicationVersion;
+	        this.Text += "  -  "+BuildMode + " " + ApplicationVersion;
+        }
+        
+        void TxtCopyedTextChanged(object sender, EventArgs e)
+        {
+        	undname(txtCopyed.Text);
         }
     }
     
