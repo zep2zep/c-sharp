@@ -99,12 +99,23 @@ namespace AppLoaderBar
                     if (File.Exists(longPath.ToString()))
                     {
                         sPath = longPath.ToString();
+                        string[] paths = sPath.Split('\\');
+                        string filename = paths[paths.Length - 1];    //ÎÄ¼þÃû
+                        if (filename.ToLower().EndsWith(".lnk"))
+                        {
+                            IWshRuntimeLibrary.WshShell shell = new IWshRuntimeLibrary.WshShell();
+                            IWshRuntimeLibrary.IWshShortcut shortcut = (IWshRuntimeLibrary.IWshShortcut)
+                            shortcut = (IWshRuntimeLibrary.IWshShortcut)shell.CreateShortcut(sPath);
+                            sPath = shortcut.TargetPath;
+                        }
                         FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(sPath);
-                        sName = fvi.ProductName;
-                        if(fvi.FileDescription=="")
-                        	sDesc = fvi.ProductName;
+                        sName = filename + " - "+fvi.ProductName;
+                        if(fvi.FileDescription != "" && fvi.FileDescription != null)
+                            sDesc = fvi.FileDescription;
+                        else if (fvi.ProductName != "" && fvi.ProductName != null)
+                            sDesc = fvi.ProductName;
                         else
-                        	sDesc = fvi.FileDescription;
+                            sDesc = fvi.FileName;
                     }
                 }
                 else 
