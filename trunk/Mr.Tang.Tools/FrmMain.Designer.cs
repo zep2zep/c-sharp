@@ -72,6 +72,9 @@
             this.txtASCIIBytes = new System.Windows.Forms.TextBox();
             this.txtToASCIIBytes = new System.Windows.Forms.TextBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.btnSubtractCall = new System.Windows.Forms.Button();
             this.txtProcessName = new System.Windows.Forms.TextBox();
             this.btnSelectProcess = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -85,6 +88,7 @@
             this.groupBox1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -541,12 +545,41 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.label5);
+            this.tabPage4.Controls.Add(this.textBox3);
+            this.tabPage4.Controls.Add(this.btnSubtractCall);
             this.tabPage4.Location = new System.Drawing.Point(4, 26);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(590, 416);
             this.tabPage4.TabIndex = 4;
             this.tabPage4.Text = "汇编";
             this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(111, 41);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(43, 17);
+            this.label5.TabIndex = 2;
+            this.label5.Text = "label5";
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(111, 114);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(148, 23);
+            this.textBox3.TabIndex = 1;
+            // 
+            // btnSubtractCall
+            // 
+            this.btnSubtractCall.Location = new System.Drawing.Point(308, 114);
+            this.btnSubtractCall.Name = "btnSubtractCall";
+            this.btnSubtractCall.Size = new System.Drawing.Size(75, 23);
+            this.btnSubtractCall.TabIndex = 0;
+            this.btnSubtractCall.Text = "Call";
+            this.btnSubtractCall.UseVisualStyleBackColor = true;
+            this.btnSubtractCall.Click += new System.EventHandler(this.btnSubtractCall_Click);
             // 
             // txtProcessName
             // 
@@ -621,6 +654,8 @@
             this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -676,6 +711,9 @@
         private System.Windows.Forms.TextBox txt16;
         private System.Windows.Forms.TextBox txt10;
         private System.Windows.Forms.Button but10To16;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.Button btnSubtractCall;
     }
 }
 

@@ -104,18 +104,27 @@ namespace Tang_s_Tools
 
         private void btnSubtractCall_Click(object sender, EventArgs e)
         {
-            AsmClass class2 = new AsmClass();
-            class2.Pushad();
-            class2.Mov_EBX(0xd53f8c);
-            class2.Mov_EAX(0xd51f28);
-            class2.Mov_EDX_DWORD_Ptr_EBX_Add(0x214);
-            class2.Mov_DWORD_Ptr_EAX_Add_EDX(0x24c);
-            class2.Mov_EAX_EBX();
-            class2.Mov_EBX(0x430020);
-            class2.Call_EBX();
-            class2.Popad();
-            class2.Ret();
-            class2.RunAsm(this.pid);
+            int eaxPtr = ReadMemoryValue(0x456D68);
+            AsmLib asm = new AsmLib();
+            //asm.Pushad();
+            asm.Mov_EAX(eaxPtr);
+            asm.Mov_EDX(0x453028);
+            asm.Call_DWORD_Ptr(0x452E98);
+            //asm.Popad();
+            //asm.Ret();
+            asm.RunAsm(this.pid);
+
+
+            //asm.Mov_EAX_DWORD_Ptr(0x916b3c);
+            //asm.Mov_EAX_DWORD_Ptr_EAX_Add(0x1c);
+            //asm.Mov_EAX_DWORD_Ptr_EAX_Add(0x28);
+            //asm.Mov_ECX_EAX();
+            //asm.Push(0);
+           // asm.Mov_EBX(0x0045F410);
+           // asm.Call_EBX();
+           //asm.Popad();
+           // asm.Ret();
+           // asm.RunAsm(this.pid);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -129,19 +138,19 @@ namespace Tang_s_Tools
         private void btnFind_Click(object sender, EventArgs e)
         {
             _baseAddress = Helper.StringToInt(txtBaseAddress.Text.Trim());   //基址
+            if (_baseAddress == 0)
+                return;
+            int p = ReadMemoryValue(_baseAddress);
             if (checkBox1.Checked)
             {
-                if (_baseAddress == 0)
-                    return;
                 _pAddress = _baseOffset;    //二级基址
             }
             else
             {
                 _baseOffset = Helper.StringToInt(txtBaseOffset.Text.Trim());   //基址偏移
                 _pOffset = Helper.StringToInt(txtOffset2.Text.Trim());   //二级基址偏移
-                if (_baseAddress == 0 || _baseOffset == 0 || _pOffset == 0)
+                if (_pOffset == 0)
                     return;
-                int p = ReadMemoryValue(_baseAddress);
                 _pAddress = _baseOffset + p;    //二级基址
             }
             _p = _pAddress+_pOffset;    //自定义的查找地址
@@ -182,9 +191,9 @@ namespace Tang_s_Tools
             {
                 string s10 = Convert.ToString(_p, 16);
                 if (_p == _pAddress + _pOffset)
-                    listFind.Items.Add(" 偏移: " + Convert.ToString(_p - _pAddress, 16) + " \t" + s10.ToUpper() + "  \t" + ReadMemoryValue(_p) + " \t(当前查询的地址)");
+                    listFind.Items.Add(i + ": 偏移: " + Convert.ToString(_p - _pAddress, 16) + " \t" + s10.ToUpper() + "  \t" + ReadMemoryValue(_p) + " \t(当前查询的地址)");
                 else
-                    listFind.Items.Add(" 偏移: " + Convert.ToString(_p - _pAddress, 16) + " \t" + s10.ToUpper() + "  \t" + ReadMemoryValue(_p));
+                    listFind.Items.Add(i + ": 偏移: " + Convert.ToString(_p - _pAddress, 16) + " \t" + s10.ToUpper() + "  \t" + ReadMemoryValue(_p));
                 _p += m;
             }
         }
