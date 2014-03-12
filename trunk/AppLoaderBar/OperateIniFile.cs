@@ -99,5 +99,24 @@ namespace AppLoaderBar
                 return temp;
             }
         }
+
+        /// <summary>
+        /// 清除这个项的值。
+        /// </summary>
+        /// <param name="sectionName">要设置的项名称。这个字串不区分大小写。</param>
+        /// <param name="keyName">要清除的项名称。这个字串不区分大小写。</param>
+        public static void ClearKeyValue(string sectionName, string keyName)
+        {
+            WritePrivateProfileString(sectionName, keyName, null, iniPaths);
+        }
+        
+        /// <summary>
+        /// 删除这个小节的所有设置项。
+        /// </summary>
+        /// <param name="sectionName">要删除的节点名。这个字串不区分大小写。</param>
+        public static void DeleteSection(string sectionName)
+        {
+            WritePrivateProfileString(sectionName, null, null, iniPaths);
+        }
     }
 }

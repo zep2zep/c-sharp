@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // 控制。更改这些属性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("AppLoaderBar")]
-[assembly: AssemblyDescription("My .Net App Loader Bar")]
+[assembly: AssemblyDescription(".Net App Loader Bar")]
 #if DEBUG
 [assembly: AssemblyConfiguration("Debug")]
 #else 
@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 #endif
 [assembly: AssemblyCompany("Bohu.Net")]
 [assembly: AssemblyProduct("App Loader Bar")]
-[assembly: AssemblyCopyright("版权所有 (C) Mr.Tang 2011")]
+[assembly: AssemblyCopyright("版权所有 (C) Mr.Tang 2011-2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,5 +33,5 @@ using System.Runtime.InteropServices;
 //      内部版本号
 //      修订号
 //
-[assembly: AssemblyVersion("1.0.1.0")]
-[assembly: AssemblyFileVersion("1.0.1.0")]
+[assembly: AssemblyVersion("1.0.2.1")]
+[assembly: AssemblyFileVersion("1.0.2.1")]
