@@ -239,4 +239,3 @@ namespace AppLoaderBar
 		public static extern int DestroyIcon( IntPtr hIcon );
 	}
 }
-

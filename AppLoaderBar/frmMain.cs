@@ -29,16 +29,18 @@ namespace AppLoaderBar
                 try
                 {
                     string[] paths = (string[])e.Data.GetData(DataFormats.FileDrop);   // 取得文件名
-//                    StringBuilder shortPath = new StringBuilder(256);
-//                    GetShortPathName(paths[0], shortPath, 256);
-                    setAppLoader(paths[0],"");  //加载程序信息
+                    //                    StringBuilder shortPath = new StringBuilder(256);
+                    //                    GetShortPathName(paths[0], shortPath, 256);
+                    setAppLoader(paths[0], "");  //加载程序信息
                 }
                 catch { }
+                finally { readAppLoaderIni(); }
             }
         }
 
         void doDragEnter(object sender, DragEventArgs e)
         {
+            e.Effect = e.AllowedEffect;
             // 拖放进入时 
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -64,17 +66,23 @@ namespace AppLoaderBar
         {
         	//版本信息
         	this.Text += getAppVersion();
-            
-        	//读INI
+            //加载ini
+            readAppLoaderIni();
+        }
+
+        void readAppLoaderIni()
+        {
+            //读INI
             if (!File.Exists(OperateIniFile.iniPaths))
                 File.Create(OperateIniFile.iniPaths);
 
+            listView1.Items.Clear();
             iniSequence = OperateIniFile.ReadIniInt("AppSet", "Total", 0);
             if (iniSequence < 1)
                 return;
-            
+
             for (int iSequence = 1; iSequence <= iniSequence; iSequence++)
-                setAppLoader("",iSequence.ToString());
+                setAppLoader("", iSequence.ToString());
         }
 
         bool setAppLoader(string filepath, string sequence)
@@ -123,6 +131,8 @@ namespace AppLoaderBar
                     sName = OperateIniFile.ReadIniData(sequence, "Name", "");
                     sPath = OperateIniFile.ReadIniData(sequence, "FILE", "");
                     sDesc = OperateIniFile.ReadIniData(sequence, "DESC", "");
+                    if (string.IsNullOrEmpty(sPath))
+                        return succes;
                 }
                 //string[] paths = sPath.Split('\\');
                 //string filename = paths[paths.Length - 1];
@@ -134,7 +144,7 @@ namespace AppLoaderBar
                 imageList1.Images.Add(sName, thefileicon);
                 ListViewItem _Item = new ListViewItem();
                 _Item.Name = sName;
-                _Item.Tag = sPath;
+                _Item.Tag = sequence;
                 _Item.Text = sDesc;
                 _Item.ToolTipText = sPath;
                 _Item.ImageIndex = imageList1.Images.IndexOfKey(sName);
@@ -145,7 +155,7 @@ namespace AppLoaderBar
                     iniSequence++;
                     OperateIniFile.WriteIniData("AppSet", "Version", getAppVersion());        //版本
                     OperateIniFile.WriteIniData("AppSet", "Total", iniSequence.ToString());	//条目 
-                    OperateIniFile.WriteIniData("AppSet", "Dater", System.DateTime.Now.ToString());  //时间
+                    OperateIniFile.WriteIniData("AppSet", "Last Date", System.DateTime.Now.ToString());  //时间
                     OperateIniFile.WriteIniData(iniSequence.ToString(), "Name", sName);   //名称
                     OperateIniFile.WriteIniData(iniSequence.ToString(), "FILE", sPath);   //路径tips
                     OperateIniFile.WriteIniData(iniSequence.ToString(), "DESC", sDesc);   //注释
@@ -162,9 +172,12 @@ namespace AppLoaderBar
         /// <param name="iSequence"></param>
         void clearAppLoader(int iSequence)
         {
-            OperateIniFile.WriteIniData(iniSequence.ToString(), "Name", "");   //名称
-            OperateIniFile.WriteIniData(iniSequence.ToString(), "FILE", "");   //路径
-            OperateIniFile.WriteIniData(iniSequence.ToString(), "DESC", "");   //注释
+            OperateIniFile.DeleteSection(iSequence.ToString());
+            iniSequence = OperateIniFile.ReadIniInt("AppSet", "Total", 0);
+            OperateIniFile.WriteIniData("AppSet", "Version", getAppVersion());              //版本
+            OperateIniFile.WriteIniData("AppSet", "Total", Convert.ToString(iniSequence-1));     //条目 
+            OperateIniFile.WriteIniData("AppSet", "Last Date", System.DateTime.Now.ToString());  //时间
+            readAppLoaderIni();
         }
 
         /// <summary>
@@ -174,11 +187,15 @@ namespace AppLoaderBar
         /// <param name="e"></param>
         private void listView1_DoubleClick(object sender, EventArgs e)
         {
-            string sName = listView1.SelectedIndices.Count > 0 ? listView1.SelectedItems[0].Name : " ";
-            string sDesc = listView1.SelectedIndices.Count > 0 ? listView1.SelectedItems[0].Text : " ";
-            string sPath = listView1.SelectedIndices.Count > 0 ? listView1.SelectedItems[0].Tag.ToString() : " ";
-            if(sPath!="")
-            	System.Diagnostics.Process.Start(sPath);
+            try
+            {
+                string sName = listView1.SelectedIndices.Count > 0 ? listView1.SelectedItems[0].Name : " ";
+                string sDesc = listView1.SelectedIndices.Count > 0 ? listView1.SelectedItems[0].Text : " ";
+                string sPath = listView1.SelectedIndices.Count > 0 ? listView1.SelectedItems[0].ToolTipText : " ";
+                if (sPath != "")
+                    System.Diagnostics.Process.Start(sPath);
+            }
+            catch(Exception ex) { MessageBox.Show(ex.Message); }
         }
 
         private void mbox()
@@ -202,7 +219,78 @@ namespace AppLoaderBar
                     BuildMode = conf.Configuration;
             }
             Version ApplicationVersion = new Version(Application.ProductVersion);
-            return BuildMode + " " + ApplicationVersion;
+            return " ("+BuildMode + " " + ApplicationVersion+")";
+        }
+
+        private void listView1_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            listView1.DoDragDrop(e.Item, DragDropEffects.Move);
+        }
+
+        private void listView1_DragLeave(object sender, EventArgs e)
+        {
+            //int iTag = -1;
+            //try
+            //{
+            //    if (listView1.SelectedIndices.Count > 0)
+            //        iTag = Convert.ToInt32(listView1.SelectedItems[0].Tag);
+            //}
+            //catch(Exception ex) { MessageBox.Show(ex.Message); }
+            //if (iTag>-1)
+            //    clearAppLoader(iTag);
+        }
+
+        private void listView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                int iTag = -1;
+                try
+                {
+                    if (listView1.SelectedIndices.Count > 0)
+                        iTag = Convert.ToInt32(listView1.SelectedItems[0].Tag);
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
+                if (iTag > -1)
+                    clearAppLoader(iTag);
+            }
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            this.TopMost = !TopMost;
+            toolStripMenuItem1.Checked = this.TopMost;
+        }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+            try
+            {
+                if (listView1.SelectedIndices.Count == 1)
+                {
+                    toolStripMenuItem1.Visible = false;
+                    toolStripMenuItem2.Visible = true;
+                }
+                else
+                {
+                    toolStripMenuItem1.Visible = true;
+                    toolStripMenuItem2.Visible = false;
+                }
+            }
+            catch (Exception ex) { toolStripMenuItem2.Enabled = false; }  
+        }
+
+        private void toolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            int iTag = -1;
+            try
+            {
+                if (listView1.SelectedIndices.Count > 0)
+                    iTag = Convert.ToInt32(listView1.SelectedItems[0].Tag);
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            if (iTag > -1)
+                clearAppLoader(iTag);
         }
     }
 }

@@ -117,7 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="contextMenuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>130, 17</value>
+  </metadata>
   <metadata name="imageList1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAICAQAAAAAADoAgAAFgAAACgAAAAgAAAAQAAAAAEABAAAAAAAgAIAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAACAAACAAAAAgIAAgAAAAIAAgACAgAAAwMDAAICAgAAAAP8AAP8AAAD//wD/AAAA/wD/AP//
+        AAD///8A////////////////////////////////////////////////8P////D///////////////8P
+        //8P////////////////D//4D/////////////////D/+AAIf//////////////wiIgP/4//////////
+        ////8AAIf/////////////////8P////8ACP////////////D////wAAAP////////AADw+AAP8AAACP
+        /////4AP//AI//8PAAAAD/////gP////////8AAAAAj///+A//iAh/////8AAAAI////D/+H////////
+        gAAACP///w//f/iP/////3AAAAD///8P//8ACP/////wAAAA////D///AAj/////+AAAAP///w///4iP
+        //////8AAAD///+A////////////AAAA////8I////8I//CP/4AAAP////gAj///D4/w+P/wAAD/////
+        +AAA/4j/+I//+AAI/////////w////////8ACP/////////w////////8Af/////////+A////////cP
+        //////////8A///////wj///////////8A//////AP////////////8I////8H//////////////8Ij/
+        9wf///////////////9wAAj///////////////////////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+</value>
+  </data>
 </root>
