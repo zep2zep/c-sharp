@@ -80,6 +80,7 @@ namespace _GUIDGenerator
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
+			System.Resources.ResourceManager resources = new System.Resources.ResourceManager(typeof(frm_GUIDGenerator));
 			this.btnMultiGen = new System.Windows.Forms.Button();
 			this.txtGUID = new System.Windows.Forms.TextBox();
 			this.txtAmount = new System.Windows.Forms.TextBox();
@@ -295,6 +296,7 @@ namespace _GUIDGenerator
 			this.Controls.Add(this.txtGUID);
 			this.Controls.Add(this.progressBar1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.KeyPreview = true;
 			this.MaximizeBox = false;
 			this.Name = "frm_GUIDGenerator";
