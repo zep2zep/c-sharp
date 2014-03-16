@@ -265,7 +265,7 @@ namespace _GUIDGenerator
 																		   0});
 			this.numericUpDown1.Name = "numericUpDown1";
 			this.numericUpDown1.Size = new System.Drawing.Size(56, 21);
-			this.numericUpDown1.TabIndex = 12;
+			this.numericUpDown1.TabIndex = 0;
 			this.numericUpDown1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.numericUpDown1.Value = new System.Decimal(new int[] {
 																		 1,
@@ -297,7 +297,6 @@ namespace _GUIDGenerator
 			this.Controls.Add(this.progressBar1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-			this.KeyPreview = true;
 			this.MaximizeBox = false;
 			this.Name = "frm_GUIDGenerator";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
